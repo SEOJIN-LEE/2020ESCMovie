@@ -9,6 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 
 /*
 1. Movie Data Class 만들기
@@ -17,12 +18,17 @@ import androidx.recyclerview.widget.RecyclerView
  */
 
 // 영화 정보를 담고 있는 data class.
+//JSON의 변수명과 Movie의 변수명이 일치해야 한다.
 data class Movie(
     val title : String, //영화 제목 --> val로 선언하는 이유: Movie 값들은 한 번 선언하면 바꿀 일이 없어서. 선언한 그 값 그대로 리사이클러뷰에서 씀.
     val popularity : Double, //인기도
-    val description : String, //설명
-    val openDate : String, //개봉일
-    val posterUrl : Int //포스터 Url <- Int : drawable에 있는 이미지 파일을 가져다 쓰기 위함. 다음수업에서는 String으로 쓸 거임.
+    val overview : String, //설명
+    val release_date : String, //개봉일
+    val poster_path : String //포스터 Url
+)
+
+data class MovieList(
+    val results: ArrayList<Movie>
 )
 
 //RecyclerView Adapter
@@ -56,11 +62,18 @@ class MovieAdapter(val context: Context, val movieList: ArrayList<Movie>) : Recy
 
         //데이터를 셀에 넣는 역할.
         fun bind(movie: Movie) {
-            iv_poster.setImageResource(movie.posterUrl)
+            val overview: String
+            if(movie.overview.length > 31) {
+                overview = movie.overview.slice(IntRange(0, 30)) + "..."
+            } else {
+                overview = movie.overview
+            }
+
+            Glide.with(context).load("https://image.tmdb.org/t/p/w500" + movie.poster_path).into(iv_poster)
             tv_title.text = movie.title
             tv_popularity.text = "인기도: " + movie.popularity
-            tv_description.text = "설명: " + movie.description
-            tv_openDate.text = "개봉일: " + movie.openDate
+            tv_description.text = "설명: " + overview
+            tv_openDate.text = "개봉일: " + movie.release_date
 
             container.setOnClickListener { //셀을 클릭했을 때
                 Toast.makeText(context, movie.title, Toast.LENGTH_SHORT).show() //영화 제목을 띄움.
